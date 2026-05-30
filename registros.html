@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ABB INVESTIMENTOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/phosphor-icons"></script>
+
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0d1b2a;
+      color: #fff;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 40px;
+      color: #1ecbe1;
+      letter-spacing: 1px;
+    }
+
+    /* Container */
+    #registros {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* CARD PREMIUM (mesmo visual dos saques) */
+    .registro {
+      background: #ffffff10;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: 0.25s ease;
+    }
+
+    .registro:hover {
+      transform: scale(1.01);
+      border-color: #1ecbe1;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    }
+
+    /* Linhas internas */
+    .registro div {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      color: #cdd6e0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .registro div:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #1ecbe1;
+    }
+
+    .valor {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Status minimalista */
+    .status {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    .confirmado {
+      background: rgba(0, 255, 140, 0.15);
+      color: #00ff8c;
+      border: 1px solid #00ff8c55;
+    }
+
+    .aguardando {
+      background: rgba(255, 166, 0, 0.15);
+      color: #ffa600;
+      border: 1px solid #ffa60066;
+    }
+
+    .recusado {
+      background: rgba(255, 60, 60, 0.15);
+      color: #ff4b4b;
+      border: 1px solid #ff4b4b66;
+    }
+
+    /* Ícones removidos para deixar mais clean */
+    .icon {
+      display: none;
+    }
+
+    p.no-data {
+      text-align: center;
+      color: #7da7c0;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <h2><i class="ph ph-currency-circle icon"></i>Meus Depósitos</h2>
+
+  <div id="registros"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+      authDomain: "milionariopalpites.firebaseapp.com",
+      databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+      projectId: "milionariopalpites",
+      storageBucket: "milionariopalpites.appspot.com",
+      messagingSenderId: "702099362398",
+      appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function formatarData(timestamp) {
+      if (!timestamp) return "N/A";
+      const data = new Date(timestamp);
+      if (isNaN(data.getTime())) return "N/A";
+      return data.toLocaleDateString("pt-PT") + " " + data.toLocaleTimeString("pt-PT");
+    }
+
+    function getStatusClass(status) {
+      const s = (status || '').toLowerCase();
+      if (s === 'confirmado') return 'confirmado';
+      if (s === 'aguardando') return 'aguardando';
+      if (s === 'recusado') return 'recusado';
+      return '';
+    }
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        alert("Você precisa estar logado!");
+        return;
+      }
+
+      const uid = user.uid;
+      const registrosRef = db.ref("pedidos_deposito");
+      const snapshot = await registrosRef.orderByChild("userId").equalTo(uid).once("value");
+      const container = document.getElementById("registros");
+
+      if (!snapshot.exists()) {
+        container.innerHTML = "<p class='no-data'>Nenhum depósito encontrado.</p>";
+        return;
+      }
+
+      const registros = Object.values(snapshot.val()).reverse();
+
+      registros.forEach(reg => {
+        const statusClasse = getStatusClass(reg.status);
+
+        const div = document.createElement("div");
+        div.className = "registro";
+
+        div.innerHTML = `
+          <div><span class="label">Banco:</span> ${reg.banco || "N/A"}</div>
+          <div><span class="label">Valor:</span> <span class="valor">${reg.valor || 0} KZ</span></div>
+          <div><span class="label">Data:</span> ${formatarData(reg.timestamp)}</div>
+          <div><span class="label">Status:</span> <span class="status ${statusClasse}">${reg.status || "N/A"}</span></div>
+        `;
+
+        container.appendChild(div);
+      });
+    });
+  </script>
+
+</body>
+</html>

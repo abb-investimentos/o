@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ABB INVESTIMENTOS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden !important;
+  height: 100%;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: radial-gradient(circle at top, #3a007e, #12001f 70%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+  padding: 18px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 5px;
+  background: linear-gradient(90deg,#8b4dff,#d394ff);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+.subtitle {
+  text-align: center;
+  color: #d8caff;
+  margin-bottom: 18px;
+}
+
+.card {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 20px rgba(128,0,255,0.2);
+}
+
+.card h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: #e9dbff;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.input-box {
+  margin-bottom: 16px;
+}
+
+.input-label {
+  display: block;
+  font-size: 14px;
+  color: #e9dbff;
+  margin-bottom: 6px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  outline: none;
+  font-size: 15px;
+}
+
+.input-field::placeholder {
+  color: #c9b9ff;
+}
+
+.upload-box {
+  background: rgba(255,255,255,0.07);
+  border: 1px dashed rgba(255,255,255,0.35);
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  color: #e5d7ff;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: .2s;
+}
+
+.upload-box i {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #b788ff;
+}
+
+.upload-selected {
+  border-color: #b788ff;
+  color: #fff;
+  font-weight: 600;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(135deg,#7a12ff,#c268ff);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  box-shadow: 0 0 18px rgba(150,60,255,0.5);
+  transition: 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.03);
+}
+
+.sec {
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: none;
+}
+
+footer {
+  text-align: center;
+  color: #cdbbff;
+  font-size: 12px;
+  margin-top: 18px;
+}
+
+footer span {
+  color: #c88dff;
+  font-weight: 700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="title">Depósito</div>
+  <div class="subtitle">Selecione o método e envie o comprovativo</div>
+
+  <div class="card">
+    <h2><i class="fa-solid fa-building-columns"></i> Transferência PAY PAY</h2>
+    <p><strong>Entidade:</strong> 10116</p>
+    <p><strong>Referência:</strong> 927250294</p>
+    <p><strong>Confirmação:</strong> Automática em até 5 min</p>
+  </div>
+
+  <div class="input-box">
+    <label class="input-label">Montante (KZ)</label>
+    <input type="text" id="valor" class="input-field" placeholder="Ex: 3000" inputmode="numeric">
+  </div>
+
+  <label class="upload-box" id="uploadBox" for="comprovativo">
+    <i class="fa-solid fa-cloud-arrow-up"></i><br>
+    <span id="uploadText">Toque para enviar comprovativo</span>
+    <input type="file" id="comprovativo" accept="image/*,application/pdf">
+  </label>
+
+  <button id="confirmar">Enviar Depósito</button>
+  <button id="verRegistros" class="sec">Ver Histórico</button>
+
+  <footer>© <span>ABB INVESTIMENTOS</span> 2025</footer>
+
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+  authDomain: "milionariopalpites.firebaseapp.com",
+  databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+  projectId: "milionariopalpites",
+  storageBucket: "milionariopalpites.appspot.com",
+  messagingSenderId: "702099362398",
+  appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+const auth = firebase.auth();
+const storage = firebase.storage();
+
+document.getElementById("comprovativo").addEventListener("change", () => {
+  const file = document.getElementById("comprovativo").files[0];
+  if (file) {
+    document.getElementById("uploadBox").classList.add("upload-selected");
+    document.getElementById("uploadText").textContent = "Selecionado: " + file.name;
+  }
+});
+
+document.getElementById("verRegistros").onclick = () => {
+  window.location.href = "registros.html";
+};
+
+document.getElementById("confirmar").onclick = async () => {
+  const valor = document.getElementById("valor").value.trim();
+  const comprovativo = document.getElementById("comprovativo").files[0];
+  const user = auth.currentUser;
+
+  if (!user) return alert("Faça login primeiro.");
+  if (!valor || isNaN(valor) || valor < 3000)
+    return alert("Mínimo 3000 KZ.");
+  if (!comprovativo)
+    return alert("Envie o comprovativo.");
+
+  const tipos = ["image/jpeg", "image/png", "application/pdf"];
+  if (!tipos.includes(comprovativo.type))
+    return alert("Formato inválido.");
+
+  const uid = user.uid;
+
+  const userSnap = await db.ref(`usuarios/${uid}`).once("value");
+  const userData = userSnap.val();
+  const nome = userData?.nome || "Usuário";
+
+  try {
+    const caminho = `comprovativos/${uid}_${Date.now()}`;
+    const ref = storage.ref(caminho);
+
+    await ref.put(comprovativo);
+    const url = await ref.getDownloadURL();
+
+    await db.ref("pedidos_deposito").push({
+      userId: uid,
+      nome,
+      valor: parseFloat(valor),
+      comprovativo: url,
+      status: "pendente",
+      timestamp: new Date().toISOString()
+    });
+
+    alert("Depósito enviado com sucesso!");
+  } catch (e) {
+    alert("Erro ao enviar.");
+    console.error(e);
+  }
+};
+</script>
+
+</body>
+</html>

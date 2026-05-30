@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>ABB INVESTIMENTOS </title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --cor-base: #1e3a47; /* azul petróleo suave */
+      --cor-base-2: #2b4d5a;
+      --cor-dourado: #c9b06e;
+      --cor-fundo: #eef2f4;
+      --cor-card: #ffffff;
+      --cor-texto: #2a2a2a;
+      --raio: 18px;
+      font-family: "Poppins", "Segoe UI", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--cor-fundo);
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      max-width: 540px;
+      background: var(--cor-base);
+      padding: 20px 25px;
+      border-radius: var(--raio);
+      color: white;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.4em;
+      font-weight: 700;
+    }
+
+    .btn-registros {
+      background: var(--cor-dourado);
+      color: #1a1a1a;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      border-radius: var(--raio);
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.25s;
+    }
+
+    .btn-registros:hover {
+      opacity: .9;
+      transform: scale(1.03);
+    }
+
+    .cartao {
+      background: var(--cor-card);
+      width: 100%;
+      max-width: 540px;
+      padding: 30px 25px;
+      margin-top: 20px;
+      border-radius: var(--raio);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      animation: aparecer .5s ease;
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--cor-base);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #c9c9c9;
+      font-size: 15px;
+      background: #fafafa;
+      transition: .2s;
+    }
+
+    input:focus, select:focus {
+      background: #fff;
+      border-color: var(--cor-base);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    }
+
+    #botaoRetirar {
+      background: var(--cor-base);
+      padding: 15px;
+      color: white;
+      border: none;
+      border-radius: var(--raio);
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .3s;
+      margin-top: 10px;
+    }
+
+    #botaoRetirar:hover {
+      background: var(--cor-base-2);
+      transform: scale(1.02);
+    }
+
+    .info-retirada {
+      background: #f4f7f8;
+      border-left: 4px solid var(--cor-base);
+      padding: 13px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .msg {
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .erro {
+      background: #ffe5e5;
+      border: 1px solid #b71c1c;
+      color: #b71c1c;
+    }
+
+    .sucesso {
+      background: #e8f5e9;
+      border: 1px solid #2e7d32;
+      color: #2e7d32;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Solicitar Retirada</h1>
+  <button class="btn-registros" onclick="window.location.href='saques2.html'">Histórico</button>
+</header>
+
+<div class="cartao">
+  <label>Nome do Beneficiário</label>
+  <input type="text" id="titular" placeholder="Informe o nome">
+
+  <label>Quantia a Retirar</label>
+  <input type="number" id="valor" placeholder="Digite o valor">
+
+  <label>Escolha o Banco</label>
+  <select id="banco">
+    <option value="">Selecionar...</option>
+    <option value="BFA">BFA</option>
+    <option value="ATL">ATL</option>
+    <option value="BIC">BIC</option>
+    <option value="BAI">BAI</option>
+  </select>
+
+  <label>IBAN</label>
+  <input type="text" id="nib" placeholder="Digite o IBAN">
+
+  <button id="botaoRetirar" onclick="fazerRetirada()">Enviar Solicitação</button>
+
+  <p class="info-retirada">
+    • Horário permitido: <strong>08:00 às 17:00</strong><br>
+    • Limites: <strong>1200 Kz</strong> a <strong>2.000.000 Kz</strong><br>
+    • Taxa: <strong>6%</strong><br>
+    • Pagamento: até <strong>30 minutos</strong>
+  </p>
+
+  <div id="mensagem" class="msg"></div>
+</div>
+
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+    authDomain: "milionariopalpites.firebaseapp.com",
+    databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+    projectId: "milionariopalpites",
+    storageBucket: "milionariopalpites.appspot.com",
+    messagingSenderId: "702099362398",
+    appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  function showMsg(texto, tipo) {
+    const msg = document.getElementById("mensagem");
+    msg.innerText = texto;
+    msg.className = "msg " + tipo;
+    msg.style.display = "block";
+  }
+
+  function fazerRetirada() {
+    const titular = document.getElementById("titular").value.trim();
+    const valor = parseFloat(document.getElementById("valor").value);
+    const banco = document.getElementById("banco").value;
+    const nib = document.getElementById("nib").value.trim();
+
+    const user = auth.currentUser;
+    if (!user) {
+      showMsg("Faça login para continuar.", "erro");
+      return;
+    }
+
+    db.ref("usuarios/" + user.uid + "/investimentos").once("value")
+      .then(snapshot => {
+        let temAtivo = false;
+
+        snapshot.forEach(inv => {
+          if (inv.val().status === "ativo") temAtivo = true;
+        });
+
+        if (!temAtivo) {
+          showMsg("Você precisa ter pelo menos 1 investimento ativo.", "erro");
+          return;
+        }
+
+        validarEEnviar(user, titular, valor, banco, nib);
+      });
+  }
+
+  function validarEEnviar(user, titular, valor, banco, nib) {
+
+    if (titular.length < 3) return showMsg("Nome inválido.", "erro");
+    if (!valor || valor < 1200 || valor > 2000000)
+      return showMsg("Valor deve estar entre 1200 e 2.000.000 Kz.", "erro");
+    if (!banco) return showMsg("Selecione um banco.", "erro");
+    if (nib.length < 5) return showMsg("IBAN inválido.", "erro");
+
+    const agora = new Date();
+    const hora = agora.getHours();
+
+    if (hora < 8 || hora >= 17)
+      return showMsg("Retiradas disponíveis apenas entre 08h e 17h.", "erro");
+
+    const valorLiquido = valor * 0.94;
+    const id = db.ref("retiradas").push().key;
+
+    db.ref("retiradas/" + id).set({
+      userId: user.uid,
+      titular,
+      valorRetirada: valor,
+      valorLiquido,
+      banco,
+      nib,
+      timestamp: Date.now(),
+      status: "pendente"
+    }).then(() => {
+      showMsg("Solicitação enviada com sucesso!", "sucesso");
+
+      document.getElementById("titular").value = "";
+      document.getElementById("valor").value = "";
+      document.getElementById("banco").value = "";
+      document.getElementById("nib").value = "";
+    })
+    .catch(() => showMsg("Erro ao enviar. Tente novamente.", "erro"));
+  }
+</script>
+
+</body>
+</html>

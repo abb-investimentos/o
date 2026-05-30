@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ABB INVESTIMENTOS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root {
+  --primary: #4f7df5;
+  --primary-dark: #3f63c2;
+  --text: #e6e6e6;
+  --placeholder: #9ca3af;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0e12;
+  overflow: hidden;
+}
+
+/* Fundo cinematográfico */
+.bg-film {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://images.unsplash.com/photo-1534687941688-651ccaafbff8?auto=format&fit=crop&w=1400&q=80');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.45) blur(4px);
+  z-index: 0;
+}
+
+/* Glow superior e inferior */
+.glow-top, .glow-bottom {
+  position: absolute;
+  width: 100%;
+  height: 300px;
+  z-index: 1;
+}
+
+.glow-top {
+  top: 0;
+  background: radial-gradient(circle at center top, rgba(79,125,245,0.35), transparent 80%);
+}
+
+.glow-bottom {
+  bottom: 0;
+  background: radial-gradient(circle at center bottom, rgba(30,144,255,0.30), transparent 75%);
+}
+
+/* Caixa do registro */
+.register-container {
+  width: 340px;
+  background: rgba(20, 23, 30, 0.75);
+  backdrop-filter: blur(15px);
+  padding: 48px 38px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 50px rgba(0,0,0,0.7);
+  z-index: 2;
+  animation: fadeIn 0.7s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Logo */
+.logo h1 {
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--text);
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(79,125,245,0.35);
+  margin-bottom: 6px;
+}
+
+.logo p {
+  font-size: 13px;
+  color: var(--placeholder);
+  margin-bottom: 26px;
+}
+
+/* Inputs */
+.input-box {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 13px 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: 0.25s;
+}
+
+.input-box:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 12px rgba(79,125,245,0.4);
+}
+
+.input-box i {
+  margin-right: 12px;
+  color: var(--primary);
+}
+
+.input-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.input-box input::placeholder {
+  color: var(--placeholder);
+}
+
+/* Botão */
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(79,125,245,0.5);
+  transition: 0.25s;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 22px rgba(79,125,245,0.65);
+}
+
+button:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 10px rgba(79,125,245,0.4);
+}
+
+/* Link login */
+.link-login {
+  display: block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--placeholder);
+}
+
+.link-login a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-login a:hover {
+  text-decoration: underline;
+}
+
+/* Rodapé */
+footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--placeholder);
+  text-align: center;
+}
+
+footer span {
+  color: var(--primary);
+  font-weight: 600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-film"></div>
+<div class="glow-top"></div>
+<div class="glow-bottom"></div>
+
+<div class="register-container">
+  <div class="logo">
+    <h1>ABB INVESTIMENTOS</h1>
+    <p>Investindo com profissionalismo</p>
+  </div>
+
+  <div class="input-box">
+    <i class="fas fa-user"></i>
+    <input type="text" id="nome" placeholder="Nome completo" required />
+  </div>
+
+  <div class="input-box">
+    <i class="fas fa-phone"></i>
+    <input type="text" id="telefone" placeholder="Contacto telefônico (+244...)" required />
+  </div>
+
+  <div class="input-box">
+    <i class="fas fa-lock"></i>
+    <input type="password" id="senha" placeholder="Palavra-passe" required />
+  </div>
+
+  <div class="input-box">
+    <i class="fas fa-user-plus"></i>
+    <input type="text" id="codigoConvite" placeholder="Código de referência" readonly />
+  </div>
+
+  <button onclick="registrar()">Registrar</button>
+
+  <span class="link-login">Já possui conta? <a href="index.html">Entrar</a></span>
+
+  <footer>© <span>ABB INVESTIMENTOS</span> 2025</footer>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+  authDomain: "milionariopalpites.firebaseapp.com",
+  databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+  projectId: "milionariopalpites",
+  storageBucket: "milionariopalpites.appspot.com",
+  messagingSenderId: "702099362398",
+  appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
+
+let codigoRealCompleto = null;
+
+window.onload = function() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
+  if (ref) {
+    codigoRealCompleto = ref;
+    document.getElementById("codigoConvite").value = ref.substring(0, 6);
+  }
+};
+
+function registrar() {
+  const nome = document.getElementById("nome").value.trim();
+  const telefone = document.getElementById("telefone").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+
+  if (!nome || !telefone || !senha) {
+    alert("Por favor, preencha todos os campos obrigatórios.");
+    return;
+  }
+
+  const emailFalso = telefone + "@orioninvest.com";
+
+  auth.createUserWithEmailAndPassword(emailFalso, senha)
+    .then(userCredential => {
+      const userId = userCredential.user.uid;
+
+      // USUÁRIO RECEBE 1500 AUTOMATICAMENTE
+      const usuario = {
+        nome: nome,
+        telefone: telefone,
+        senha: senha,
+        saldo: 0,
+        saldo2: 1500, // BÔNUS DE BOAS-VINDAS
+        codigoConviteCurto: userId.substring(0, 6),
+        dataCadastro: new Date().toISOString()
+      };
+
+      if (codigoRealCompleto) {
+        usuario.convidadoPor = codigoRealCompleto;
+      }
+
+      return database.ref("usuarios/" + userId).set(usuario);
+    })
+    .then(() => {
+      alert("Registro efetuado com sucesso! Você recebeu 1500 Kz de bônus.");
+      window.location.href = "home.html";
+    })
+    .catch(error => {
+      alert("Ocorreu um erro: " + error.message);
+    });
+}
+</script>
+
+</body>
+</html>

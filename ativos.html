@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>ABB INVESTIMENTOS</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card-bg: #ffffff;
+      --accent: #007aff;
+      --text-dark: #2c2c2c;
+      --text-gray: #777;
+      font-family: 'Poppins', 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      padding: 40px 15px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2.titulo {
+      color: var(--accent);
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .produtos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      width: 100%;
+    }
+
+    .produto {
+      background: var(--card-bg);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      border: 1px solid #eaeaea;
+      transition: 0.3s;
+    }
+
+    .produto:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+    }
+
+    .produto .conteudo {
+      padding: 14px 16px;
+      text-align: left;
+    }
+
+    .produto h3 {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .linha {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .linha span { color: var(--text-gray); }
+    .linha strong { color: var(--accent); font-weight: 700; }
+
+    .mensagem {
+      text-align: center;
+      color: var(--accent);
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .produtos-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+      h2.titulo { font-size: 22px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2 class="titulo">Meus Investimentos</h2>
+    <div class="produtos-grid" id="ativosGrid"></div>
+    <div class="mensagem" id="mensagemVazio" style="display:none;">Nenhum investimento ativo foi encontrado.</div>
+  </main>
+
+  <div class="toast" id="toast">✅ Lucro diário creditado!</div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+      authDomain: "milionariopalpites.firebaseapp.com",
+      databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+      projectId: "milionariopalpites",
+      storageBucket: "milionariopalpites.appspot.com",
+      messagingSenderId: "702099362398",
+      appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    let userId = null;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        userId = user.uid;
+        carregarAtivos();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    function mostrarToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+
+    function carregarAtivos() {
+      const grid = document.getElementById("ativosGrid");
+      const mensagemVazio = document.getElementById("mensagemVazio");
+
+      db.ref(`usuarios/${userId}/investimentos`).on('value', snap => {
+        grid.innerHTML = "";
+        let temAtivo = false;
+
+        snap.forEach(invSnap => {
+          const invId = invSnap.key;
+          const inv = invSnap.val();
+
+          if (inv.status === "ativo") {
+            temAtivo = true;
+            const diasRestantes = (inv.dias || 0) - (inv.diasPagos || 0);
+            const inicio = new Date(inv.inicio);
+
+            const card = document.createElement("div");
+            card.className = "produto";
+            card.innerHTML = `
+              <div class="conteudo">
+                <h3>${inv.nome || 'Investimento'}</h3>
+                <div class="linha"><span>Investido</span><strong>AOA ${Number(inv.preco).toLocaleString()}</strong></div>
+                <div class="linha"><span>Tempo restante</span><strong id="tempo-${invId}">${diasRestantes} dias</strong></div>
+                <div class="linha"><span>Lucro diário</span><strong>AOA ${Number(inv.lucroDiario || 0).toLocaleString()}</strong></div>
+                <div class="linha"><span>Rendimento total</span><strong>AOA ${Number(inv.total || 0).toLocaleString()}</strong></div>
+                <div class="linha"><span>Início</span><strong>${inicio.toLocaleDateString()}</strong></div>
+              </div>`;
+            grid.appendChild(card);
+
+            if (inv.categoria === "Fundo Mensal" || inv.categoria === "Atividades") {
+              iniciarContagemFinal(invId, inv);
+            } else {
+              const tipoDiario = inv.tipo === "diário" || inv.dias === 1;
+              if (tipoDiario) iniciarContagemRegressiva(invId, inv);
+              else iniciarContagemDias(invId, inv);
+            }
+          }
+        });
+
+        mensagemVazio.style.display = temAtivo ? "none" : "block";
+      });
+    }
+
+    function iniciarContagemRegressiva(invId, inv) {
+      verificarCreditoAtrasado(invId, inv);
+      const tempoEl = document.getElementById(`tempo-${invId}`);
+
+      function atualizar() {
+        const ultimo = inv.ultimoCredito || inv.inicio;
+        const proximo = new Date(ultimo).getTime() + 24 * 60 * 60 * 1000;
+        const restante = proximo - Date.now();
+
+        if (restante <= 0) {
+          creditarLucro(invId, inv);
+          clearInterval(interval);
+          return;
+        }
+
+        const horas = Math.floor((restante / (1000 * 60 * 60)) % 24);
+        const minutos = Math.floor((restante / (1000 * 60)) % 60);
+        tempoEl.textContent = `${horas}h ${minutos}min restantes`;
+      }
+
+      atualizar();
+      const interval = setInterval(atualizar, 60000);
+    }
+
+    function iniciarContagemDias(invId, inv) {
+      verificarCreditoAtrasado(invId, inv);
+      const tempoEl = document.getElementById(`tempo-${invId}`);
+
+      function atualizarDias() {
+        const restantes = (inv.dias || 0) - (inv.diasPagos || 0);
+        tempoEl.textContent = `${restantes} dias restantes`;
+        if (restantes <= 0) clearInterval(interval);
+      }
+
+      atualizarDias();
+      const interval = setInterval(atualizarDias, 60 * 60 * 1000);
+    }
+
+    function iniciarContagemFinal(invId, inv) {
+      const tempoEl = document.getElementById(`tempo-${invId}`);
+
+      function atualizarFinal() {
+        const inicio = new Date(inv.inicio);
+        const diasTotais = inv.dias || 30;
+        const fim = inicio.getTime() + diasTotais * 24 * 60 * 60 * 1000;
+        const restante = fim - Date.now();
+
+        if (restante <= 0) {
+          creditarLucroFinal(invId, inv);
+          clearInterval(interval);
+          return;
+        }
+
+        const dias = Math.ceil(restante / (1000 * 60 * 60 * 24));
+        tempoEl.textContent = `${dias} dias restantes`;
+      }
+
+      atualizarFinal();
+      const interval = setInterval(atualizarFinal, 60 * 60 * 1000);
+    }
+
+    function creditarLucro(invId, inv) {
+      const lucro = inv.lucroDiario || 0;
+      const refUser = db.ref(`usuarios/${userId}`);
+      const invRef = db.ref(`usuarios/${userId}/investimentos/${invId}`);
+      const novoDiaPago = (inv.diasPagos || 0) + 1;
+      const diasTotais = inv.dias || 1;
+
+      refUser.child("saldo2").transaction(s => (s || 0) + lucro);
+      invRef.update({ ultimoCredito: Date.now(), diasPagos: novoDiaPago });
+
+      mostrarToast(`✅ Lucro de AOA ${lucro.toLocaleString()} creditado!`);
+
+      if (novoDiaPago >= diasTotais) {
+        invRef.update({ status: "finalizado" });
+        mostrarToast(`🎉 O plano ${inv.nome || invId} foi finalizado!`);
+      }
+    }
+
+    function creditarLucroFinal(invId, inv) {
+      if (inv.status !== "ativo") return;
+
+      const total = inv.total || 0;
+      const refUser = db.ref(`usuarios/${userId}`);
+      const invRef = db.ref(`usuarios/${userId}/investimentos/${invId}`);
+
+      refUser.child("saldo2").transaction(s => (s || 0) + total);
+      invRef.update({
+        ultimoCredito: Date.now(),
+        diasPagos: inv.dias,
+        status: "finalizado"
+      });
+
+      mostrarToast(`🎉 Plano ${inv.nome || invId} finalizado! AOA ${total.toLocaleString()} creditado.`);
+    }
+
+    function verificarCreditoAtrasado(invId, inv) {
+      if (inv.categoria === "Fundo Mensal" || inv.categoria === "Atividades") return;
+
+      const agora = Date.now();
+      const ultimoCredito = inv.ultimoCredito || inv.inicio;
+      const diasPassados = Math.floor((agora - new Date(ultimoCredito).getTime()) / (24 * 60 * 60 * 1000));
+
+      if (diasPassados > 0 && inv.status === "ativo") {
+        let pendentes = diasPassados;
+        let restantes = (inv.dias || 0) - (inv.diasPagos || 0);
+        if (pendentes > restantes) pendentes = restantes;
+
+        if (pendentes > 0) {
+          const total = (inv.lucroDiario || 0) * pendentes;
+          const refUser = db.ref(`usuarios/${userId}`);
+          const invRef = db.ref(`usuarios/${userId}/investimentos/${invId}`);
+
+          refUser.child("saldo2").transaction(s => (s || 0) + total);
+          invRef.update({
+            ultimoCredito: agora,
+            diasPagos: (inv.diasPagos || 0) + pendentes
+          });
+
+          mostrarToast(`✅ ${pendentes} dia(s) pago(s): ${total.toLocaleString()} AOA creditado(s)!`);
+
+          if ((inv.diasPagos || 0) + pendentes >= (inv.dias || 0))
+            invRef.update({ status: "finalizado" });
+        }
+      }
+    }
+  </script>
+</body>
+</html>

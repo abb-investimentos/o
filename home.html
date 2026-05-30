@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABB INVESTIMENTOS</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- GOOGLE FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cor1: #0d0f29;
+      --cor2: #14173d;
+      --cor3: #1e2255;
+      --azulNeon: #5ab4ff;
+      --roxoNeon: #9d4bff;
+      --branco: #fff;
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --radius: 18px;
+      --blur: blur(14px);
+      font-family: "Poppins", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: linear-gradient(135deg, var(--cor1), var(--cor2), var(--cor3));
+      min-height: 100vh;
+      padding-bottom: 120px;
+      background-size: 200% 200%;
+      animation: gradientMove 12s ease infinite;
+      color: var(--branco);
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .header {
+      width: 100%;
+      height: 210px;
+      border-radius: var(--radius);
+      background: url("https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80") center/cover;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(3px);
+    }
+
+    .user-info {
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      padding: 12px 16px;
+      border-radius: 14px;
+      z-index: 5;
+    }
+
+    .saldos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .saldo-card {
+      padding: 18px;
+      border-radius: var(--radius);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      text-align: center;
+      color: var(--azulNeon);
+      font-weight: 600;
+      box-shadow: 0 0 18px rgba(0,0,0,0.25);
+    }
+
+    .acoes {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 0;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--azulNeon), var(--roxoNeon));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px rgba(90,180,255,0.5);
+      cursor: pointer;
+    }
+
+    .info-box {
+      margin-top: 28px;
+      padding: 20px;
+      height: 260px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      border-radius: var(--radius);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      font-size: 14px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      padding: 10px 0 14px;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* FUNDO ESCURO DO POPUP */
+    #popupFundo {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(3px);
+      display: none;
+      z-index: 30;
+    }
+
+    /* POPUP AJUDA */
+    #popupAjuda {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 31;
+      animation: fadeIn .3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .ajuda-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg,#5ab4ff,#9d4bff);
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="user-info">
+      <span id="userName">Usuário</span>
+      <span id="userId">ID: ---</span>
+    </div>
+  </div>
+
+  <div class="saldos-grid">
+    <div class="saldo-card">
+      <strong id="ganhoTotal">0,00 KZ</strong>
+      <span>Depósito</span>
+    </div>
+
+    <div class="saldo-card">
+      <strong id="retiradaTotal">0,00 KZ</strong>
+      <span>Retirada</span>
+    </div>
+  </div>
+
+  <div class="acoes">
+    <button class="btn" onclick="window.location.href='depositos.html'">Depósito</button>
+    <button class="btn" onclick="window.location.href='saque.html'">Retirada</button>
+  </div>
+
+  <div class="info-box">
+    <h3>Gráfico de Rendimentos</h3>
+    <canvas id="graficoRendimentos"></canvas>
+  </div>
+
+</div>
+
+<!-- FUNDO ESCURO DO POPUP -->
+<div id="popupFundo"></div>
+
+<!-- POPUP DE AJUDA -->
+<div id="popupAjuda">
+  <div class="ajuda-btn" onclick="window.location.href='https://wa.me/957587632'">
+    ASSISTÊNCIA GERENTE
+  </div>
+
+  <div class="ajuda-btn" onclick="window.location.href='https://chat.whatsapp.com/FOYrudPW6jHJblcehuHeMJ'">
+    GRUPO WHATSAPP
+  </div>
+</div>
+
+<!-- Rodapé -->
+<footer>
+  <div class="rodape-item" onclick="window.location.href='home.html'">Home</div>
+  <div class="rodape-item" onclick="window.location.href='ativos.html'">Ativos</div>
+  <div class="rodape-item" onclick="window.location.href='investir.html'">Investir</div>
+  <div class="rodape-item" onclick="window.location.href='equipe.html'">Equipe</div>
+  <div class="rodape-item" onclick="abrirAjuda()">Ajuda</div>
+</footer>
+
+<script>
+function abrirAjuda() {
+  const fundo = document.getElementById("popupFundo");
+  const box = document.getElementById("popupAjuda");
+
+  const aberto = box.style.display === "block";
+
+  box.style.display = aberto ? "none" : "block";
+  fundo.style.display = aberto ? "none" : "block";
+}
+
+/* FECHAR POPUP AO CLICAR FORA */
+document.getElementById("popupFundo").addEventListener("click", () => {
+  document.getElementById("popupAjuda").style.display = "none";
+  document.getElementById("popupFundo").style.display = "none";
+});
+</script>
+
+<!-- SCRIPT DO GRÁFICO -->
+<script>
+let grafico;
+
+function gerarGrafico(dados = []) {
+  const ctx = document.getElementById("graficoRendimentos").getContext("2d");
+
+  if (grafico) grafico.destroy();
+  if (dados.length === 0) dados = [0,0,0,0,0,0,0];
+
+  let cumul = [];
+  let total = 0;
+  dados.forEach(v => { total += Number(v); cumul.push(total); });
+
+  grafico = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],
+      datasets: [{
+        label: "Rendimento Acumulado (KZ)",
+        data: cumul,
+        borderWidth: 2,
+        borderColor: "#5ab4ff",
+        backgroundColor: "rgba(90,180,255,0.25)",
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: "#fff" } } },
+      scales: {
+        x: { ticks: { color: "#fff" } },
+        y: { ticks: { color: "#fff" } }
+      }
+    }
+  });
+}
+</script>
+
+<!-- FIREBASE -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+    authDomain: "milionariopalpites.firebaseapp.com",
+    databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+    projectId: "milionariopalpites",
+    storageBucket: "milionariopalpites.appspot.com",
+    messagingSenderId: "702099362398",
+    appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const auth = firebase.auth();
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      const uid = user.uid;
+
+      db.ref("usuarios/" + uid).on("value", snap => {
+        if (snap.exists()) {
+          const dados = snap.val();
+
+          document.getElementById("userName").textContent = dados.nome || "Usuário";
+          document.getElementById("userId").textContent = "ID: " + uid.substring(0, 6);
+
+          document.getElementById("ganhoTotal").textContent =
+            `${parseFloat(dados.saldo || 0).toFixed(2)} KZ`;
+
+          document.getElementById("retiradaTotal").textContent =
+            `${parseFloat(dados.saldo2 || 0).toFixed(2)} KZ`;
+
+          const rend = dados.rendimentos_semana ? Object.values(dados.rendimentos_semana) : [];
+          gerarGrafico(rend);
+        }
+      });
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+</script>
+
+</body>
+</html>

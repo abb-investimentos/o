@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>ABB INVESTIMENTOS</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: #0b0026;
+      --bg2: #20003f;
+      --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.06);
+      --accent1: #5ab4ff;
+      --accent2: #9d4bff;
+      --neon: rgba(90,180,255,0.12);
+      --card-shadow: 0 10px 30px rgba(77,19,128,0.35);
+      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      margin:0; padding:0;
+      overflow-y:auto; /* permite subir e descer */
+      overflow-x:hidden; /* impede mover esquerda/direita */
+      background:radial-gradient(1200px circle at 10% 10%, #2b0044 0%, #11001b 45%, #070014 100%);
+    }
+
+    body{
+      color:#e9e7ff;
+      display:flex;
+      justify-content:center;
+      padding:28px 12px;
+    }
+
+    .wrap{
+      width:100%; max-width:1024px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:18px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .brand{display:flex; gap:12px; align-items:center;}
+
+    .logo{
+      width:56px; height:56px;
+      border-radius:12px;
+      background: linear-gradient(135deg,var(--accent2),var(--accent1));
+      box-shadow:0 6px 20px rgba(157,75,255,0.25);
+      display:flex; justify-content:center; align-items:center;
+      font-weight:700; color:#fff;
+      font-size:18px;
+    }
+
+    h1{
+      font-size:20px; margin:0; color:transparent;
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      -webkit-background-clip:text; background-clip:text;
+      font-weight:700;
+    }
+
+    .lead{margin:0; color:#cfc9ff; font-size:13px;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:18px;
+      margin-top:10px;
+    }
+
+    /* cards */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      border-radius:14px;
+      padding:16px;
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:var(--card-shadow);
+      transition:all .25s ease;
+      position:relative;
+    }
+
+    .card:hover{ transform:translateY(-8px); box-shadow:0 18px 40px rgba(77,19,128,0.5); }
+
+    .pill{
+      position:absolute;
+      top:12px; right:-38px;
+      transform:rotate(25deg);
+      padding:6px 64px;
+      background:linear-gradient(90deg,var(--accent2),var(--accent1));
+      color:#fff;
+      font-size:12px; font-weight:700;
+      opacity:0.95;
+    }
+
+    .title{ font-size:15px; font-weight:700; margin-bottom:10px; color:#fff; }
+
+    .meta{ display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:#cfc7ff; }
+    .meta strong{ color:var(--accent1); }
+
+    .desc{ color:#d9d1ff; font-size:13px; margin-bottom:12px; }
+
+    .btn{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:none;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:#041029; font-weight:800; cursor:pointer;
+      transition:all .2s;
+    }
+
+    .btn:hover{ transform:translateY(-4px); opacity:.95; }
+
+    /* modal */
+    .modal-bg{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.65);
+      justify-content:center;
+      align-items:center;
+      z-index:2000;
+      padding:20px;
+    }
+
+    .modal{
+      width:100%; max-width:420px;
+      padding:18px;
+      border-radius:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.06);
+      color:#f3eeff;
+    }
+
+    .option{
+      padding:12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.04);
+      background:rgba(255,255,255,0.02);
+      cursor:pointer;
+      margin-bottom:10px;
+      display:flex; justify-content:space-between;
+    }
+
+    .option:hover{
+      background:linear-gradient(90deg,rgba(90,180,255,0.08),rgba(157,75,255,0.06));
+      transform:translateY(-4px);
+    }
+
+    .cancel{
+      padding:8px 14px;
+      background:rgba(255,255,255,0.05);
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .popup{
+      display:none;
+      position:fixed;
+      top:12%;
+      left:50%;
+      transform:translateX(-50%);
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      padding:14px 22px;
+      color:#041029;
+      border-radius:12px;
+      font-weight:700;
+      z-index:3000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">ABB</div>
+        <div>
+          <h1>ABB INVESTIMENTOS</h1>
+          <p class="lead">Planos mensais — Escolha seu nível</p>
+        </div>
+      </div>
+      <div class="muted" id="saldoInfo">Saldo: AOA 0 • Retirada: AOA 0</div>
+    </header>
+
+    <section class="grid" id="produtosGrid"></section>
+  </div>
+
+  <div class="modal-bg" id="modal-bg" onclick="fecharModalFora(event)">
+    <div class="modal" id="modal">
+      <h2>Confirmar Investimento</h2>
+      <div id="resumo-plano"></div>
+
+      <div class="option" id="opt-principal">
+        <span>Usar Saldo Principal</span>
+        <strong id="val-principal">AOA 0</strong>
+      </div>
+
+      <div class="option" id="opt-retirada">
+        <span>Usar Saldo de Retirada</span>
+        <strong id="val-retirada">AOA 0</strong>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <div class="cancel" onclick="fecharModal()">Cancelar</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="popup"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+      authDomain: "milionariopalpites.firebaseapp.com",
+      databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+      projectId: "milionariopalpites",
+      storageBucket: "milionariopalpites.appspot.com",
+      messagingSenderId: "702099362398",
+      appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    let userId = null;
+    let saldo = 0;
+    let saldo2 = 0;
+
+    /* ============================
+       PLANOS QUE VOCÊ PEDIU
+       3000 – 5000 – 10000 – 20000 – 50000
+    ============================= */
+    const planos = [
+      { nome: "Plano Bronze", preco: 3000, dias: 30, total: 27900 },
+      { nome: "Plano Prata", preco: 5000, dias: 30, total: 46500 },
+      { nome: "Plano Ouro", preco: 10000, dias: 30, total: 93000 },
+      { nome: "Plano Safira", preco: 20000, dias: 30, total: 186000 },
+      { nome: "Plano Elite", preco: 50000, dias: 30, total: 465000 }
+    ];
+
+    auth.onAuthStateChanged(user => {
+      if (!user) return location.href = "index.html";
+      userId = user.uid;
+      db.ref("usuarios/" + userId).on("value", s => {
+        if (!s.exists()) return;
+        saldo = Number(s.val().saldo || 0);
+        saldo2 = Number(s.val().saldo2 || 0);
+        document.getElementById("saldoInfo").textContent =
+          `Saldo: AOA ${saldo.toLocaleString()} • Retirada: AOA ${saldo2.toLocaleString()}`;
+      });
+      renderPlanos();
+    });
+
+    function renderPlanos(){
+      const g = document.getElementById("produtosGrid");
+      g.innerHTML = "";
+      planos.forEach(p => {
+        const lucro = Math.round(p.total / p.dias);
+        g.innerHTML += `
+          <div class="card">
+            <div class="pill">${p.dias}d</div>
+            <div class="title">${p.nome}</div>
+            <div class="meta"><span>Montante</span><strong>AOA ${p.preco.toLocaleString()}</strong></div>
+            <div class="meta"><span>Rendimento diário</span><strong>AOA ${lucro.toLocaleString()}</strong></div>
+            <div class="desc">Rendimento total estimado: <strong>AOA ${p.total.toLocaleString()}</strong></div>
+            <button class="btn" onclick="abrirModal('${p.nome}',${p.preco},${p.dias},${p.total})">Invista Agora</button>
+          </div>
+        `;
+      });
+    }
+
+    let investimentoSelecionado = null;
+
+    function abrirModal(nome, preco, dias, total){
+      investimentoSelecionado = { nome, preco, dias, total };
+      document.getElementById("modal-bg").style.display = "flex";
+      document.getElementById("resumo-plano").textContent =
+        `Investir AOA ${preco.toLocaleString()} — ${nome}`;
+
+      document.getElementById("val-principal").textContent = `AOA ${saldo.toLocaleString()}`;
+      document.getElementById("val-retirada").textContent = `AOA ${saldo2.toLocaleString()}`;
+
+      document.getElementById("opt-principal").onclick = () => comprar("saldo");
+      document.getElementById("opt-retirada").onclick = () => comprar("saldo2");
+    }
+
+    function fecharModal(){ document.getElementById("modal-bg").style.display = "none"; }
+
+    function fecharModalFora(e){
+      if (!document.getElementById("modal").contains(e.target)) fecharModal();
+    }
+
+    function popup(t){
+      const p = document.getElementById("popup");
+      p.textContent = t;
+      p.style.display = "block";
+      setTimeout(()=> p.style.display="none", 2500);
+    }
+
+    async function comprar(tipo){
+      if (!investimentoSelecionado) return;
+      const { nome, preco, dias, total } = investimentoSelecionado;
+
+      let atual = (tipo === "saldo" ? saldo : saldo2);
+      if (atual < preco) return popup("Saldo insuficiente.");
+
+      atual -= preco;
+
+      const inv = {
+        nome, preco, dias, total,
+        lucroDiario: total/dias,
+        inicio: Date.now(),
+        ultimoPagamento: Date.now(),
+        diasPagos: 0,
+        status: "ativo",
+        tipoSaldo: tipo,
+        categoria: "mensal"
+      };
+
+      try {
+        await db.ref(`usuarios/${userId}/investimentos`).push(inv);
+        await db.ref(`usuarios/${userId}/${tipo}`).set(atual);
+        popup("Investimento concluído!");
+        fecharModal();
+      } catch(e){
+        popup("Erro ao investir.");
+      }
+    }
+  </script>
+</body>
+</html>

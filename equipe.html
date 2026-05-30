@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>ABB INVESTIMENTOS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root{
+  --gradiente: linear-gradient(135deg,#4a3aff,#8a2cff);
+  --fundo:#eef1f8;
+  --card:#ffffff;
+  --texto:#222;
+  --muted:#6b6d7b;
+  --radius:18px;
+  --sombra:0 10px 30px rgba(0,0,0,0.06);
+  --sombra2:0 4px 12px rgba(0,0,0,0.05);
+  font-family:"Poppins", sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:var(--fundo);
+  color:var(--texto);
+  display:flex;
+  justify-content:center;
+  padding:22px;
+  min-height:100vh;
+}
+
+.wrap{
+  width:100%;
+  max-width:1000px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+header h1{
+  font-size:1.8rem;
+  font-weight:700;
+  background:var(--gradiente);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* --- NOVO: CARDS PREMIUM --- */
+.grid-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+  margin-bottom:28px;
+}
+
+.card-info{
+  background:var(--card);
+  padding:16px;
+  border-radius:var(--radius);
+  box-shadow:var(--sombra2);
+  position:relative;
+  overflow:hidden;
+}
+
+.card-info:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:6px;
+  background:var(--gradiente);
+  border-radius:6px;
+}
+
+.card-top{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.icon-circle{
+  width:48px;
+  height:48px;
+  background:var(--gradiente);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card-label{
+  font-size:0.85rem;
+  color:var(--muted);
+}
+
+.card-value{
+  font-size:1.5rem;
+  font-weight:700;
+  margin-top:4px;
+  background:var(--gradiente);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* --- LINK PESSOAL --- */
+.box-link{
+  background:var(--card);
+  padding:20px;
+  border-radius:var(--radius);
+  box-shadow:var(--sombra2);
+  margin-bottom:25px;
+}
+
+.box-link h2{
+  font-size:1.1rem;
+  margin-bottom:12px;
+  color:#4035ce;
+}
+
+.link-row{
+  display:flex;
+  gap:10px;
+}
+
+.link-show{
+  flex:1;
+  background:#eef0ff;
+  padding:12px;
+  border-radius:var(--radius);
+  border:1px solid #d7d9ff;
+  font-size:0.85rem;
+  word-break:break-all;
+}
+
+.btn-copy{
+  background:var(--gradiente);
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:var(--radius);
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* --- SEÇÕES DE TABELAS --- */
+.section{
+  background:var(--card);
+  padding:20px;
+  border-radius:var(--radius);
+  box-shadow:var(--sombra2);
+  margin-bottom:20px;
+}
+
+.section h3{
+  font-size:1rem;
+  margin-bottom:12px;
+  background:var(--gradiente);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-weight:600;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+}
+
+thead{
+  background:#4d3bff;
+  color:#fff;
+}
+
+th{
+  padding:12px;
+  text-align:left;
+  font-size:0.9rem;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  font-size:0.9rem;
+}
+
+tr:nth-child(even){
+  background:#fafafa;
+}
+
+@media(max-width:600px){
+  header h1{ font-size:1.35rem }
+  .icon-circle{ width:42px;height:42px;font-size:18px }
+  .card-value{ font-size:1.2rem }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <h1><i class="fa-solid fa-handshake"></i> Painel de Parceiros</h1>
+</header>
+
+<!-- NOVO DESIGN DE CARDS -->
+<div class="grid-cards">
+
+  <div class="card-info">
+    <div class="card-top">
+      <div class="icon-circle"><i class="fa-solid fa-wallet"></i></div>
+      <div>
+        <div class="card-label">Saldo Principal</div>
+        <div class="card-value" id="saldoPrincipal">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-info">
+    <div class="card-top">
+      <div class="icon-circle"><i class="fa-solid fa-gift"></i></div>
+      <div>
+        <div class="card-label">Saldo de Bônus</div>
+        <div class="card-value" id="saldoBonus">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-info">
+    <div class="card-top">
+      <div class="icon-circle"><i class="fa-solid fa-circle-check"></i></div>
+      <div>
+        <div class="card-label">Ganhos creditados</div>
+        <div class="card-value" id="comissaoTotal">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-info">
+    <div class="card-top">
+      <div class="icon-circle"><i class="fa-solid fa-plus"></i></div>
+      <div>
+        <div class="card-label">Novos ganhos</div>
+        <div class="card-value" id="novasComissoes">0</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LINK PESSOAL -->
+<div class="box-link">
+  <h2><i class="fa-solid fa-link"></i> Seu link de convite</h2>
+  <div class="link-row">
+    <div id="linkConvite" class="link-show">A carregar...</div>
+    <button id="btnCopiar" class="btn-copy"><i class="fa-solid fa-copy"></i></button>
+  </div>
+</div>
+
+<!-- TABELAS DE NÍVEIS -->
+<div class="section">
+  <h3><i class="fa-solid fa-users"></i> Indicações — Nível 1 (30%)</h3>
+  <table id="tab1"><thead><tr><th>Nome</th><th>Investido</th><th>Ganhos</th></tr></thead><tbody></tbody></table>
+</div>
+
+<div class="section">
+  <h3><i class="fa-solid fa-users-line"></i> Indicações — Nível 2 (7%)</h3>
+  <table id="tab2"><thead><tr><th>Nome</th><th>Investido</th><th>Ganhos</th></tr></thead><tbody></tbody></table>
+</div>
+
+<div class="section">
+  <h3><i class="fa-solid fa-network-wired"></i> Indicações — Nível 3 (3%)</h3>
+  <table id="tab3"><thead><tr><th>Nome</th><th>Investido</th><th>Ganhos</th></tr></thead><tbody></tbody></table>
+</div>
+
+</div>
+
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+/* ---- TODO O JS ORIGINAL MANTIDO SEM ALTERAR NADA ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCpK1eBlNJtmSylWsaNt3-m9z9hMgoqxf4",
+  authDomain: "milionariopalpites.firebaseapp.com",
+  databaseURL: "https://milionariopalpites-default-rtdb.firebaseio.com",
+  projectId: "milionariopalpites",
+  storageBucket: "milionariopalpites.appspot.com",
+  messagingSenderId: "702099362398",
+  appId: "1:702099362398:android:2050ef61e5b4efedbe9acf"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const P1 = 0.30, P2 = 0.07, P3 = 0.03;
+let uid = null, meuCodigoCurto = null;
+
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    alert("Acesse sua conta para visualizar o painel de parceiros.");
+    window.location.href = "index.html";
+    return;
+  }
+  uid = user.uid;
+  const meuSnap = await db.ref("usuarios/" + uid).once("value");
+  const meuObj = meuSnap.val() || {};
+  meuCodigoCurto = meuObj.codigoConviteCurto || uid.substring(0,6);
+
+  document.getElementById("linkConvite").textContent =
+    window.location.origin + "/registrar.html?ref=" + meuCodigoCurto;
+
+  document.getElementById("saldoPrincipal").textContent = (meuObj.saldo || 0).toFixed(2);
+  document.getElementById("saldoBonus").textContent = (meuObj.saldo2 || 0).toFixed(2);
+
+  processarGanhos();
+});
+
+function somaInvestimentos(u){
+  let soma=0;
+  if(!u||!u.investimentos) return 0;
+  for(const invId in u.investimentos){
+    const inv=u.investimentos[invId];
+    if(inv&&typeof inv.preco==="number"&&(!inv.status||inv.status==="ativo"))
+      soma+=inv.preco;
+  }
+  return soma;
+}
+
+async function processarGanhos(){
+  const snap=await db.ref("usuarios").once("value");
+  const todos=snap.val()||{};
+  const listaN1=[],listaN2=[],listaN3=[];
+
+  for(const k in todos){
+    const u=todos[k];
+    if(u&&u.convidadoPor===meuCodigoCurto)
+      listaN1.push({ uid:k, dados:u });
+  }
+
+  for(const n1 of listaN1){
+    for(const k in todos){
+      const u=todos[k];
+      if(u&&u.convidadoPor===n1.dados.codigoConviteCurto)
+        listaN2.push({ uid:k, dados:u });
+    }
+  }
+
+  for(const n2 of listaN2){
+    for(const k in todos){
+      const u=todos[k];
+      if(u&&u.convidadoPor===n2.dados.codigoConviteCurto)
+        listaN3.push({ uid:k, dados:u });
+    }
+  }
+
+  renderLista("tab1",listaN1,P1);
+  renderLista("tab2",listaN2,P2);
+  renderLista("tab3",listaN3,P3);
+
+  let novosGanhos=0;
+  let ganhosTotais=0;
+
+  async function processarLista(lista,nivel,pct){
+    for(const item of lista){
+      const convidado=item.dados;
+      const investimentos=convidado.investimentos||{};
+      for(const invId in investimentos){
+        const inv=investimentos[invId];
+        if(!inv||typeof inv.preco!=="number"||(inv.status&&inv.status!=="ativo")) continue;
+
+        const valor=inv.preco*pct;
+        const comId=`${item.uid}_${invId}`;
+        const comPath=`comissoes/${uid}/${comId}`;
+        const jaPago=await db.ref(comPath).once("value");
+        if(jaPago.exists()) continue;
+
+        await db.ref(comPath).set({
+          convidadoUid:item.uid,
+          investimentoId:invId,
+          nivel,
+          valor,
+          pagoEm:Date.now()
+        });
+
+        await db.ref(`usuarios/${uid}/saldo2`).transaction(s=>(s||0)+valor);
+        novosGanhos+=valor;
+        ganhosTotais+=valor;
+      }
+    }
+  }
+
+  await processarLista(listaN1,1,P1);
+  await processarLista(listaN2,2,P2);
+  await processarLista(listaN3,3,P3);
+
+  const comSnap=await db.ref(`comissoes/${uid}`).once("value");
+  const todas=comSnap.val()||{};
+  for(const cid in todas) ganhosTotais+=todas[cid].valor||0;
+
+  const meSnap=await db.ref(`usuarios/${uid}`).once("value");
+  const me=meSnap.val()||{};
+  document.getElementById("saldoPrincipal").textContent=(me.saldo||0).toFixed(2);
+  document.getElementById("saldoBonus").textContent=(me.saldo2||0).toFixed(2);
+  document.getElementById("comissaoTotal").textContent=ganhosTotais.toFixed(2);
+  document.getElementById("novasComissoes").textContent=novosGanhos.toFixed(2);
+}
+
+function renderLista(tabId,lista,pct){
+  const tbody=document.querySelector(`#${tabId} tbody`);
+  tbody.innerHTML="";
+  for(const item of lista){
+    const u=item.dados;
+    const investido=somaInvestimentos(u);
+    const ganho=investido*pct;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${u.nome||"-"}</td>
+      <td>${(investido||0).toFixed(2)}</td>
+      <td>${ganho.toFixed(2)}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+document.getElementById("btnCopiar").addEventListener("click",()=>{
+  const texto=document.getElementById("linkConvite").textContent;
+  navigator.clipboard.writeText(texto)
+    .then(()=>alert("Link copiado!"))
+});
+</script>
+
+</body>
+</html>
