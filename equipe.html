@@ -319,7 +319,7 @@ auth.onAuthStateChanged(async user => {
   meuCodigoCurto = meuObj.codigoConviteCurto || uid.substring(0,6);
 
   document.getElementById("linkConvite").textContent =
-    window.location.origin + "/registrar.html?ref=" + meuCodigoCurto;
+    window.location.origin + "/o/registrar.html?ref=" + meuCodigoCurto;
 
   document.getElementById("saldoPrincipal").textContent = (meuObj.saldo || 0).toFixed(2);
   document.getElementById("saldoBonus").textContent = (meuObj.saldo2 || 0).toFixed(2);
@@ -431,6 +431,17 @@ function renderLista(tabId,lista,pct){
       <td>${ganho.toFixed(2)}</td>`;
     tbody.appendChild(tr);
   }
+}
+
+document.getElementById("btnCopiar").addEventListener("click",()=>{
+  const texto=document.getElementById("linkConvite").textContent;
+  navigator.clipboard.writeText(texto)
+    .then(()=>alert("Link copiado!"))
+});
+</script>
+
+</body>
+  </html>  }
 }
 
 document.getElementById("btnCopiar").addEventListener("click",()=>{
